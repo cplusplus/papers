@@ -41,9 +41,12 @@ foreach my $x (@p) {
     my ($dummy, $pnum, $title, $author, $groups) = split /<td > /, $x;
 
     $pnum =~ s/<a href=".+?">(N[0-9]+|P[0-9]+R[0-9]+)<\/a> *\n.*$/$1/s;
+    $title =~ s/ *<\/td>//s;
     $title =~ s/ *\n.*$//s;
+    $author =~ s/ *<\/td>//s;
     $author =~ s/ *\n.*$//s;
     $author =~ s/ +/ /g;
+    $groups =~ s/ *<\/td>//s;
     $groups =~ s/ *\n.*$//s;
 
     next if !defined($reqpaper) && $pnum =~ /^N/;
@@ -127,13 +130,14 @@ foreach my $x (@p) {
 	print F "}\n";
 	close F;
 
-	# Do not change labels or milestones for closed issues.
+	# Do not change the milestone for closed issues.
 	next if ($issue->{state} eq "closed");
 	
-	# Step 3: Update the labels and the milestones
+	# Step 3: Update the milestone
 	open(F, "|./github-post.sh /repos/$repo/issues/$number") || die "cannot POST issue";
 	print F "{\n";
-	print F "  \"labels\": [ ", join(",", map "\"$_\"", @groups), " ],\n";
+	# Do not update the group designation, since that's owned by the chairs.
+	# print F "  \"labels\": [ ", join(",", map "\"$_\"", @groups), " ],\n";
 	print F "  \"milestone\": $milestone\n";
 	print F "}\n";
 	close F;
