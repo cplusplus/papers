@@ -1,0 +1,31 @@
+---+ {{issue.pnum}} {{issue.summary}}
+
+{{issue.github}}
+
+| Latest paper | {{issue.latestPaper}} |
+| Previous discussion |  |
+| Presenter | {{issue.presenterName}} |
+
+---++ Pre-meeting comments
+
+
+
+---++ Meeting discussion
+
+Please invite the following people when the paper is discussed:
+   * First Last
+
+---+++ Day AM/PM (In case there are multiple discussions)
+
+Discussing: {{issue.latestPaper}}
+
+---++++ Attendees (If the notetaker can gather this)
+
+   * First Last (FL)
+
+---++++ Presentation and discussion
+
+
+Do you think we should take a straw poll? (Template)
+|SF|F|N|A|SA|
+|0|0|0|0|0|
