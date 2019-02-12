@@ -72,6 +72,8 @@ foreach my $x (@p) {
 	}
     }
 
+    # @groups = (qw/LEWG-I/);
+
     my $body = "[$pnum](https://wg21.link/$lcpnum) $title ($author)";
 
     # Look for an existing issue for this paper.
