@@ -3,7 +3,7 @@
 use strict;
 use JSON;
 
-my $repo = "jensmaurer/papers";
+my $repo = "cplusplus/papers";
 
 # EWG Kona: /projects/2142630
 

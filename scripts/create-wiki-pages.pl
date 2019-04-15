@@ -3,7 +3,7 @@
 use strict;
 use JSON;
 
-my $repo = "jensmaurer/papers";
+my $repo = "cplusplus/papers";
 
 die "You are overwriting wiki pages, likely!  Update the TWIKISID, too.";
 

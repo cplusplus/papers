@@ -6,7 +6,7 @@
 use strict;
 use JSON;
 
-my $repo = "jensmaurer/papers";
+my $repo = "cplusplus/papers";
 my $milestone = 1;           # FIXME before every import
 
 local $/;
@@ -38,7 +38,7 @@ foreach my $x (@p) {
     my $body = "[$pnum](https://wg21.link/$lcpnum) $title ($author)";
 
     next if !defined $adopted;
-    next unless $adopted =~ /^Adopted 2018-11/;
+    next unless $adopted =~ /^Adopted 2019-03/;
 
     print "$adopted $pnum $title\n";
 
@@ -81,7 +81,7 @@ foreach my $x (@p) {
     # Step 2: Create a comment with the new paper info.
     open(F, "|./github-post.sh /repos/$repo/issues/$number/comments") || die "cannot POST comment";
     print F "{\n";
-    print F "  \"body\": \"$adopted\"";
+    print F "  \"body\": \"$adopted.\"";
     print F "}\n";
     close F;
 

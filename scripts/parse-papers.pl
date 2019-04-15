@@ -3,8 +3,8 @@
 use strict;
 use JSON;
 
-my $repo = "jensmaurer/papers";
-my $milestone = 1;           # FIXME before every import
+my $repo = "cplusplus/papers";
+my $milestone = 3;           # FIXME before every import
 
 my $reqpaper = shift;
 

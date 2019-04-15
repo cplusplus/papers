@@ -3,7 +3,7 @@
 use strict;
 use JSON;
 
-my $repo = "jensmaurer/papers";
+my $repo = "cplusplus/papers";
 
 my $choice = shift;
 
