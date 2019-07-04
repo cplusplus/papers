@@ -17,14 +17,18 @@ shift @p;
 
 my %groupnames =
     (
+     "WG21" => "info",
      "Evolution Incubator" => "EWG-I",
+     "EWGI" => "EWG-I",
      "Evolution" => "EWG",
      "Core" => "CWG",
      "Library Evolution Incubator" => "LEWG-I",
+     "LEWGI" => "LEWG-I",
      "Library Evolution" => "LEWG",
      "Library" => "LWG",
 		   
      "SG1" => "SG1",
+     "SG2" => "SG2",
      "SG6" => "SG6",
      "SG7" => "SG7",
 
@@ -63,9 +67,7 @@ foreach my $x (@p) {
 
     my @groups;
     foreach my $g (@g) {
-	if ($g eq "WG21") {
-	    # ignore
-	} elsif (exists $groupnames{$g}) {
+	if (exists $groupnames{$g}) {
 	    push @groups, $groupnames{$g};
 	} else {
 	    print STDERR "Cannot map group '$g' for $pnum $title\n";
