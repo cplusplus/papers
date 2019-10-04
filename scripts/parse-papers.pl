@@ -4,9 +4,16 @@ use strict;
 use JSON;
 
 my $repo = "cplusplus/papers";
-my $milestone = 3;           # FIXME before every import
+my $milestone = 4;           # FIXME before every import
+
+my $updatems = 1;
 
 my $reqpaper = shift;
+
+if (defined($reqpaper) && $reqpaper eq "-noms") {
+    $updatems = 0;
+    $reqpaper = shift;
+}
 
 local $/;
 my $html = <>;
@@ -18,12 +25,12 @@ shift @p;
 my %groupnames =
     (
      "WG21" => "info",
-     "Evolution Incubator" => "EWG-I",
-     "EWGI" => "EWG-I",
+     "Evolution Incubator" => "EWGI",
+     "EWGI" => "EWGI",
      "Evolution" => "EWG",
      "Core" => "CWG",
-     "Library Evolution Incubator" => "LEWG-I",
-     "LEWGI" => "LEWG-I",
+     "Library Evolution Incubator" => "LEWGI",
+     "LEWGI" => "LEWGI",
      "Library Evolution" => "LEWG",
      "Library" => "LWG",
 		   
@@ -74,7 +81,7 @@ foreach my $x (@p) {
 	}
     }
 
-    # @groups = (qw/LEWG-I/);
+    # @groups = (qw/LEWGI/);
 
     my $body = "[$pnum](https://wg21.link/$lcpnum) $title ($author)";
 
@@ -122,29 +129,31 @@ foreach my $x (@p) {
 	foreach my $c (@$comments) {
 	    $found = 1 if $c->{body} =~ /^\[$pnum/;
 	}
-	# Skip paper if comment body already has paper number. 
-	next if $found;
-
-	print "Updating for $pnum\n";
 
 	# Step 2: Create a comment with the new paper info.
-	open(F, "|./github-post.sh /repos/$repo/issues/$number/comments") || die "cannot POST comment";
-	print F "{\n";
-	print F "  \"body\": \"$body\"";
-	print F "}\n";
-	close F;
+	# (Skip paper if comment body already has paper number.)
+	if ($found == 0) {
+	    print "Updating for $pnum\n";
+	    open(F, "|./github-post.sh /repos/$repo/issues/$number/comments") || die "cannot POST comment";
+	    print F "{\n";
+	    print F "  \"body\": \"$body\"";
+	    print F "}\n";
+	    close F;
+	}
 
 	# Do not change the milestone for closed issues.
 	next if ($issue->{state} eq "closed");
 	
 	# Step 3: Update the milestone
-	open(F, "|./github-post.sh /repos/$repo/issues/$number") || die "cannot POST issue";
-	print F "{\n";
-	# Do not update the group designation, since that's owned by the chairs.
-	# print F "  \"labels\": [ ", join(",", map "\"$_\"", @groups), " ],\n";
-	print F "  \"milestone\": $milestone\n";
-	print F "}\n";
-	close F;
+	if ($updatems) {
+	    open(F, "|./github-post.sh /repos/$repo/issues/$number") || die "cannot POST issue";
+	    print F "{\n";
+	    # Do not update the group designation, since that's owned by the chairs.
+	    # print F "  \"labels\": [ ", join(",", map "\"$_\"", @groups), " ],\n";
+	    print F "  \"milestone\": $milestone\n";
+	    print F "}\n";
+	    close F;
+	}
 
 	next;
     }
