@@ -144,10 +144,19 @@ foreach my $x (@p) {
 	    close F;
 	}
 
+	# Step 3: Remove 'needs-revision' label, if present.
+	foreach my $l (@{$issue->{labels}}) {
+	    if ($l->{name} eq "needs-revision") {
+		print "Removing 'needs-revision' label\n";
+		system("./github-delete.sh /repos/$repo/issues/$number/labels/needs-revision");
+		last;
+	    }
+	}
+
 	# Do not change the milestone for closed issues.
 	next if ($issue->{state} eq "closed");
 	
-	# Step 3: Update the milestone
+	# Step 4: Update the milestone
 	if ($updatems) {
 	    open(F, "|./github-post.sh /repos/$repo/issues/$number") || die "cannot POST issue";
 	    print F "{\n";
