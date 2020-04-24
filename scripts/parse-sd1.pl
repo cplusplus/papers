@@ -7,7 +7,6 @@ use strict;
 use JSON;
 
 my $repo = "cplusplus/papers";
-my $milestone = 1;           # FIXME before every import
 
 local $/;
 my $html = <>;
@@ -38,7 +37,7 @@ foreach my $x (@p) {
     my $body = "[$pnum](https://wg21.link/$lcpnum) $title ($author)";
 
     next if !defined $adopted;
-    next unless $adopted =~ /^Adopted 2019-03/;
+    next unless $adopted =~ /^Adopted 2020-02/;
 
     print "$adopted $pnum $title\n";
 
