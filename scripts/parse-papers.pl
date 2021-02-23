@@ -4,7 +4,7 @@ use strict;
 use JSON;
 
 my $repo = "cplusplus/papers";
-my $milestone = 6;           # FIXME before every import
+my $milestone = 7;           # FIXME before every import
 
 my $updatems = 1;
 
@@ -48,7 +48,8 @@ my %groupnames =
      "SG16" => "SG16",
      "SG19" => "SG19",
      "SG20" => "SG20",
-     "SG21" => "SG21");
+     "SG21" => "SG21",
+     "SG22" => "SG22");
 
 
 foreach my $x (@p) {
