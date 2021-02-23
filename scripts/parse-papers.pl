@@ -110,11 +110,13 @@ foreach my $x (@p) {
     foreach my $i (@{$obj->{items}}) {
 	if ($i->{title} =~ /^$pseries /) {
 	    $issue = $i;
-	    push(@i, $i->{number});
+	    push(@i, $i);
 	}
     }
     if (@i > 1) {
-	print "Duplicate issues for $pseries: ", join(", ", @i), "\n";
+	print "Duplicate issues for $pseries: ", join(", ", map { $_->{number} } @i), "\n";
+	@i = grep { $_->{state} ne "closed" } @i;
+	$issue = $i[0];
     }
     if (defined $issue) {
 	my $number = $issue->{number};
