@@ -140,7 +140,7 @@ foreach my $x (@p) {
 	# (Skip paper if comment body already has paper number.)
 	if ($found == 0) {
 	    print "Updating for $pnum\n";
-	    open(F, "|./github-post.sh /repos/$repo/issues/$number/comments") || die "cannot POST comment";
+	    open(F, "|./github-post.sh /repos/$repo/issues/$number/comments >/dev/null") || die "cannot POST comment";
 	    print F "{\n";
 	    print F "  \"body\": \"$body\"";
 	    print F "}\n";
@@ -151,7 +151,7 @@ foreach my $x (@p) {
 	foreach my $l (@{$issue->{labels}}) {
 	    if ($l->{name} eq "needs-revision") {
 		print "Removing 'needs-revision' label\n";
-		system("./github-delete.sh /repos/$repo/issues/$number/labels/needs-revision");
+		system("./github-delete.sh /repos/$repo/issues/$number/labels/needs-revision >/dev/null");
 		last;
 	    }
 	}
@@ -161,7 +161,7 @@ foreach my $x (@p) {
 	
 	# Step 4: Update the milestone
 	if ($updatems) {
-	    open(F, "|./github-post.sh /repos/$repo/issues/$number") || die "cannot POST issue";
+	    open(F, "|./github-post.sh /repos/$repo/issues/$number > /dev/null") || die "cannot POST issue";
 	    print F "{\n";
 	    # Do not update the group designation, since that's owned by the chairs.
 	    # print F "  \"labels\": [ ", join(",", map "\"$_\"", @groups), " ],\n";
