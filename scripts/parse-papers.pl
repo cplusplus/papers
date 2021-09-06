@@ -2,6 +2,7 @@
 
 use strict;
 use JSON;
+use HTML::Entities;
 
 my $repo = "cplusplus/papers";
 my $milestone = 7;           # FIXME before every import
@@ -40,6 +41,8 @@ my %groupnames =
      "SG5" => "SG5",
      "SG6" => "SG6",
      "SG7" => "SG7",
+     "SG9" => "SG9",
+     "SG10" => "SG10",
 
      "SG12" => "SG12",
      "SG13" => "SG13",
@@ -180,7 +183,7 @@ foreach my $x (@p) {
 
     # create new issue
     print "Creating $pseries $title\n";
-    $title =~ s/"/\\"/g;    # escape quotation marks
+    $title = encode_entities($title);
     $body =~ s/"/\\"/g;    # escape quotation marks
     open(F, "|./github-post.sh /repos/$repo/issues | grep message") || die "cannot POST new issue";
     print F "{\n";
