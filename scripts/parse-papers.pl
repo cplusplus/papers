@@ -34,6 +34,8 @@ my %groupnames =
      "LEWGI" => "LEWGI",
      "Library Evolution" => "LEWG",
      "Library" => "LWG",
+
+     "Direction Group" => "DG",
 		   
      "SG1" => "SG1",
      "SG2" => "SG2",
