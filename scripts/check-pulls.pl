@@ -9,7 +9,6 @@ use JSON;
 my $repo = "cplusplus/draft";
 
 local $/;
-# open(F, "./github-get.sh '/repos/cplusplus/draft/pulls?sort=updated&direction=desc&per_page=100&page=1'|") || die "cannot GET";
 
 my $q = "is:pr is:open repo:cplusplus/draft -label:\"needs rebase\"";
 $q =~ s/ /+/g;
