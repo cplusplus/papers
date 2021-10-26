@@ -37,12 +37,12 @@ foreach my $x (@p) {
     my $body = "[$pnum](https://wg21.link/$lcpnum) $title ($author)";
 
     next if !defined $adopted;
-    next unless $adopted =~ /^Adopted 2020-02/;
+    next unless $adopted =~ /^Adopted 2021-10/;
 
-    print "$adopted $pnum $title\n";
+    # print "$adopted $pnum $title\n";
 
     # Look for an existing issue for this paper.
-    my $q = "$pseries is:open is:issue in:title repo:$repo";
+    my $q = "$pseries is:issue in:title repo:$repo";
     $q =~ s/ /+/g;
 
     local $/;
@@ -72,26 +72,19 @@ foreach my $x (@p) {
 
     my $found = 0;
     foreach my $c (@$comments) {
-	$found = 1 if $c->{body} =~ /^Adopted/;
+	$found = 1 if $c->{body} =~ /^$adopted/;
     }
     # Skip paper if comment body already has "Adopted" remark.
     next if $found;
 
     # Step 2: Create a comment with the new paper info.
-    open(F, "|./github-post.sh /repos/$repo/issues/$number/comments") || die "cannot POST comment";
+    open(F, "|./github-post.sh /repos/$repo/issues/$number/comments >/dev/null") || die "cannot POST comment";
     print F "{\n";
     print F "  \"body\": \"$adopted.\"";
     print F "}\n";
     close F;
 
-    # Step 3: Close the issue.
-    open(F, "|./github-post.sh /repos/$repo/issues/$number") || die "cannot POST issue";
-    print F "{\n";
-    print F "  \"state\": \"closed\"\n";
-    print F "}\n";
-    close F;
+    print "$adopted #$number $pnum $title\n";
 
-    print "Closed $adopted $pnum $title\n";
-
-    sleep 10;
+    sleep 1;
 }
