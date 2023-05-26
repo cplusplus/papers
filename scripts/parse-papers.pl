@@ -5,16 +5,9 @@ use JSON;
 use HTML::Entities;
 
 my $repo = "cplusplus/papers";
-my $milestone = 7;           # FIXME before every import
-
-my $updatems = 1;
+my $milestone = 10;    # 2023-telecon       # FIXME before every import
 
 my $reqpaper = shift;
-
-if (defined($reqpaper) && $reqpaper eq "-noms") {
-    $updatems = 0;
-    $reqpaper = shift;
-}
 
 local $/;
 my $html = <>;
@@ -37,24 +30,25 @@ my %groupnames =
 
      "Direction Group" => "DG",
 		   
-     "SG1" => "SG1",
+     "SG1 Concurrency and Parallelism" => "SG1",
      "SG2" => "SG2",
      "SG4" => "SG4",
      "SG5" => "SG5",
-     "SG6" => "SG6",
+     "SG6 Numerics" => "SG6",
      "SG7" => "SG7",
-     "SG9" => "SG9",
+     "SG9 Ranges" => "SG9",
      "SG10" => "SG10",
 
      "SG12" => "SG12",
      "SG13" => "SG13",
-     "SG14" => "SG14",
-     "SG15" => "SG15",
-     "SG16" => "SG16",
-     "SG19" => "SG19",
+     "SG14 Low Latency" => "SG14",
+     "SG15 Tooling" => "SG15",
+     "SG16 Unicode" => "SG16",
+     "SG19 Machine Learning" => "SG19",
      "SG20" => "SG20",
-     "SG21" => "SG21",
-     "SG22" => "SG22");
+     "SG21 Contracts" => "SG21",
+     "SG22 Compatability" => "SG22",
+     "SG23 Safety and Security" => "SG23");
 
 
 foreach my $x (@p) {
@@ -63,6 +57,7 @@ foreach my $x (@p) {
     $pnum =~ s/<a href=".+?">(N[0-9]+|P[0-9]+R[0-9]+)<\/a> *\n.*$/$1/s;
     $title =~ s/ *<\/td>//s;
     $title =~ s/ *\n.*$//s;
+    $title =~ s/"/'/g;
     $author =~ s/ *<\/td>//s;
     $author =~ s/ *\n.*$//s;
     $author =~ s/ +/ /g;
@@ -76,6 +71,8 @@ foreach my $x (@p) {
     $pseries =~ s/R.+$//;
     my $rev = $pnum;
     $rev =~ s/^.*R//;
+
+    my $issuetitle = "$pseries R$rev $title";
 
     next if defined($reqpaper) && $pseries ne $reqpaper;
 
@@ -132,19 +129,15 @@ foreach my $x (@p) {
 	
 	# Step 1: Retrieve existing comments.
 	local $/;
-	open(F, "./github-get.sh /repos/$repo/issues/$number/comments|") || die "cannot GET comments";
+	open(F, "./github-get.sh /repos/$repo/issues/$number/comments?per_page=100|") || die "cannot GET comments";
 	my $comments = decode_json(<F>);
 	close F;
 
-	my $found = 0;
-	foreach my $c (@$comments) {
-	    $found = 1 if $c->{body} =~ /^\[$pnum/;
-	}
+	my $found = grep { $_->{body} =~ /^\[$pnum/ } @$comments;
 
 	# Step 2: Create a comment with the new paper info.
 	# (Skip paper if comment body already has paper number.)
 	if ($found == 0) {
-	    print "Updating for $pnum\n";
 	    open(F, "|./github-post.sh /repos/$repo/issues/$number/comments >/dev/null") || die "cannot POST comment";
 	    print F "{\n";
 	    print F "  \"body\": \"$body\"";
@@ -161,35 +154,46 @@ foreach my $x (@p) {
 	    }
 	}
 
-	# Do not change the milestone for closed issues.
-	next if ($issue->{state} eq "closed");
-	
-	# Step 4: Update the milestone
-	if ($updatems) {
-	    open(F, "|./github-post.sh /repos/$repo/issues/$number > /dev/null") || die "cannot POST issue";
-	    print F "{\n";
-	    # Do not update the group designation, since that's owned by the chairs.
-	    # print F "  \"labels\": [ ", join(",", map "\"$_\"", @groups), " ],\n";
-	    print F "  \"milestone\": $milestone\n";
-	    print F "}\n";
-	    close F;
+	# Step 4: Update the title and mileston; re-open the issue, if needed.
+	# Do not update the group designation, since that's owned by the chairs.
+	open(F, "|./github-post.sh /repos/$repo/issues/$number > /dev/null") || die "cannot POST issue";
+	print F "{\n";
+	my $needcomma = 0;
+	if ($issue->{title} ne $issuetitle) {
+	    print F "  \"title\": \"$issuetitle\"\n";
+	    $needcomma = 1;
 	}
+	my $plenary_approved =
+	    grep { $_->{name} eq "plenary-approved" } @{$issue->{labels}};
+	if (!$plenary_approved) {
+	    print F "," if $needcomma;
+	    print F "  \"state\": \"open\",\n" if $issue->{state} eq "closed";
+	    print F "  \"milestone\": $milestone\n";
+	}
+	print F "}\n";
+	close F;
+
+	my @u = ();
+	push @u, "paper" if $found == 0;
+	push @u, "title" if $needcomma;
+	push @u, "status" if !$plenary_approved && $issue->{state} eq "closed";
+
+	print "Updated ", join(", ", @u), " for $pnum $title\n" if @u;
 
 	next;
     }
 
     if (!defined $reqpaper && @groups == 0) {
-	print "No groups assigned; not creating: $pseries $title\n";
+	print "No groups assigned; not creating: $pnum $title\n";
 	next;
     }
 
     # create new issue
-    print "Creating $pseries $title\n";
-    $title = encode_entities($title);
+    print "Creating $pnum $title\n";
     $body =~ s/"/\\"/g;    # escape quotation marks
     open(F, "|./github-post.sh /repos/$repo/issues | grep message") || die "cannot POST new issue";
     print F "{\n";
-    print F "  \"title\": \"$pseries $title\",\n";
+    print F "  \"title\": \"$issuetitle\",\n";
     print F "  \"body\": \"$body\",\n";
     print F "  \"labels\": [ ", join(",", map "\"$_\"", @groups), " ],\n";
     print F "  \"milestone\": $milestone\n";
