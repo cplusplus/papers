@@ -32,7 +32,7 @@ my %groupnames =
 		   
      "SG1 Concurrency and Parallelism" => "SG1",
      "SG2" => "SG2",
-     "SG4" => "SG4",
+     "SG4" => "SG4 Networking",
      "SG5 Transactional Memory" => "SG5",
      "SG6 Numerics" => "SG6",
      "SG7 Reflection" => "SG7",
@@ -52,9 +52,11 @@ my %groupnames =
 
 
 foreach my $x (@p) {
-    my ($dummy, $pnum, $title, $author, $groups) = split /<td > /, $x;
+    my ($dummy, $pnum, $title, $author, $date, $mailing, $prior, $groups) = split /<td > /, $x;
 
     $pnum =~ s/<a href=".+?">(N[0-9]+|P[0-9]+R[0-9]+)<\/a> *\n.*$/$1/s;
+    $pnum =~ s/ *<\/td>//s;
+    $pnum =~ s/ *\n.*$//s;
     $title =~ s/ *<\/td>//s;
     $title =~ s/ *\n.*$//s;
     $title =~ s/"/'/g;
@@ -86,6 +88,9 @@ foreach my $x (@p) {
 	    print STDERR "Cannot map group '$g' for $pnum $title\n";
 	}
     }
+
+    # print "$pnum $title $author $groups\n";
+    # exit 1;
 
     # @groups = (qw/LEWGI/);
 
