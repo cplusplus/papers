@@ -1,7 +1,8 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl -wCIo
 
 use strict;
 use JSON;
+use Text::CSV qw( csv );
 use HTML::Entities;
 
 my $repo = "cplusplus/papers";
@@ -9,30 +10,23 @@ my $milestone = 10;    # 2023-telecon       # FIXME before every import
 
 my $reqpaper = shift;
 
-local $/;
-my $html = <>;
-
-my @p = split /<tr >/, $html;
-
-shift @p;
-
 my %groupnames =
     (
-     "WG21" => "info",
+     "All of WG21" => "info",
      "EWGI SG17: EWG Incubator" => "EWGI",
      "EWGI" => "EWGI",
-     "Evolution" => "EWG",
+     "EWG Evolution" => "EWG",
      "Core" => "CWG",
      "LEWGI SG18: LEWG Incubator" => "LEWGI",
      "LEWGI" => "LEWGI",
-     "Library Evolution" => "LEWG",
-     "Library" => "LWG",
+     "LEWG Library Evolution" => "LEWG",
+     "LWG Library" => "LWG",
 
      "Direction Group" => "DG",
 		   
      "SG1 Concurrency and Parallelism" => "SG1",
      "SG2" => "SG2",
-     "SG4" => "SG4 Networking",
+     "SG4 Networking" => "SG4 Networking",
      "SG5 Transactional Memory" => "SG5",
      "SG6 Numerics" => "SG6",
      "SG7 Reflection" => "SG7",
@@ -45,26 +39,19 @@ my %groupnames =
      "SG15 Tooling" => "SG15",
      "SG16 Unicode" => "SG16",
      "SG19 Machine Learning" => "SG19",
-     "SG20" => "SG20",
+     "SG20 Education" => "SG20",
      "SG21 Contracts" => "SG21",
      "SG22 Compatability" => "SG22",
      "SG23 Safety and Security" => "SG23");
 
 
-foreach my $x (@p) {
-    my ($dummy, $pnum, $title, $author, $date, $mailing, $prior, $groups) = split /<td > /, $x;
+my $csv = Text::CSV::csv(in => *STDIN, encoding => "utf-8", headers => "skip")
+    or die Text::CSV->error_diag;
 
-    $pnum =~ s/<a href=".+?">(N[0-9]+|P[0-9]+R[0-9]+)<\/a> *\n.*$/$1/s;
-    $pnum =~ s/ *<\/td>//s;
-    $pnum =~ s/ *\n.*$//s;
-    $title =~ s/ *<\/td>//s;
-    $title =~ s/ *\n.*$//s;
+foreach my $row (@$csv) {
+    my ($entryid, $pnum, $filename, $title, $author, $coauthors, $date, $mailing, $prior, $groups, $disposition) = @$row;
+
     $title =~ s/"/'/g;
-    $author =~ s/ *<\/td>//s;
-    $author =~ s/ *\n.*$//s;
-    $author =~ s/ +/ /g;
-    $groups =~ s/ *<\/td>//s;
-    $groups =~ s/ *\n.*$//s;
 
     next if !defined($reqpaper) && $pnum =~ /^N/;
 
@@ -89,12 +76,12 @@ foreach my $x (@p) {
 	}
     }
 
-    # print "$pnum $title $author $groups\n";
-    # exit 1;
+    # print "$pnum $title $author ", join(",", @groups), "\n";
+    # next;
 
     # @groups = (qw/LEWGI/);
 
-    my $body = "[$pnum](https://wg21.link/$lcpnum) $title ($author)";
+    my $body = "[$pnum](https://wg21.link/$lcpnum) $title (" . join(", ", ($author, $coauthors)) . ")";
 
     # Look for an existing issue for this paper.
     my $q = "$pseries is:issue in:title repo:$repo";
