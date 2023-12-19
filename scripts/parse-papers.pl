@@ -6,7 +6,7 @@ use Text::CSV qw( csv );
 use HTML::Entities;
 
 my $repo = "cplusplus/papers";
-my $milestone = 10;    # 2023-telecon       # FIXME before every import
+my $milestone = 14;    # 2023-telecon       # FIXME before every import
 
 my $reqpaper = shift;
 
@@ -16,7 +16,7 @@ my %groupnames =
      "EWGI SG17: EWG Incubator" => "EWGI",
      "EWGI" => "EWGI",
      "EWG Evolution" => "EWG",
-     "Core" => "CWG",
+     "CWG Core" => "CWG",
      "LEWGI SG18: LEWG Incubator" => "LEWGI",
      "LEWGI" => "LEWGI",
      "LEWG Library Evolution" => "LEWG",
@@ -50,6 +50,7 @@ my $csv = Text::CSV::csv(in => *STDIN, encoding => "utf-8", headers => "skip")
 
 foreach my $row (@$csv) {
     my ($entryid, $pnum, $filename, $title, $author, $coauthors, $date, $mailing, $prior, $groups, $disposition) = @$row;
+    my @coauthors = split /, /, $coauthors;
 
     $title =~ s/"/'/g;
 
@@ -81,7 +82,7 @@ foreach my $row (@$csv) {
 
     # @groups = (qw/LEWGI/);
 
-    my $body = "[$pnum](https://wg21.link/$lcpnum) $title (" . join(", ", ($author, $coauthors)) . ")";
+    my $body = "[$pnum](https://wg21.link/$lcpnum) $title (" . join(", ", ($author, @coauthors)) . ")";
 
     # Look for an existing issue for this paper.
     my $q = "$pseries is:issue in:title repo:$repo";
