@@ -6,7 +6,7 @@ use Text::CSV qw( csv );
 use HTML::Entities;
 
 my $repo = "cplusplus/papers";
-my $milestone = 14;    # 2023-telecon       # FIXME before every import
+my $milestone = 19;    # 2025-telecon       # FIXME before every import
 
 my $reqpaper = shift;
 
@@ -23,6 +23,7 @@ my %groupnames =
      "LWG Library" => "LWG",
 
      "Direction Group" => "DG",
+     "ARG ABI Review Group" => "ABI",
 		   
      "SG1 Concurrency and Parallelism" => "SG1",
      "SG2" => "SG2",
@@ -31,7 +32,7 @@ my %groupnames =
      "SG6 Numerics" => "SG6",
      "SG7 Reflection" => "SG7",
      "SG9 Ranges" => "SG9",
-     "SG10" => "SG10",
+     "SG10 Feature Test" => "SG10",
 
      "SG12 Undefined and Unspecified Behavior" => "SG12",
      "SG13" => "SG13",
@@ -41,7 +42,7 @@ my %groupnames =
      "SG19 Machine Learning" => "SG19",
      "SG20 Education" => "SG20",
      "SG21 Contracts" => "SG21",
-     "SG22 Compatability" => "SG22",
+     "SG22 Compatibility" => "SG22",
      "SG23 Safety and Security" => "SG23");
 
 
