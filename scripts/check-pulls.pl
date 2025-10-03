@@ -13,26 +13,28 @@ local $/;
 my $q = "is:pr is:open repo:cplusplus/draft -label:\"needs rebase\"";
 $q =~ s/ /+/g;
 
-open(F, "./github-get.sh '/search/issues?q=$q&sort=updated&order=desc&per_page=100&page=1'|") || die "cannot GET";
+for my $page ((1..9)) {
+  print "page: $page\n";
+  open(F, "./github-get.sh '/search/issues?q=$q&sort=updated&order=desc&per_page=100&page=$page'|") || die "cannot GET";
 
-my $resp = <F>;
-close F;
+  my $resp = <F>;
+  close F;
 
-my $obj = decode_json($resp);
+  my $obj = decode_json($resp);
 
-for my $i (@{$obj->{items}}) {
-    my $number = $i->{number};
+  for my $i (@{$obj->{items}}) {
+      my $number = $i->{number};
 
-    next if $i->{title} =~ /^P[0-9]{4}R[0-9]+/;
+      next if $i->{title} =~ /^P[0-9]{4}R[0-9]+/;
 
-    local $/;
-    open(F, "./github-get.sh '/repos/cplusplus/draft/pulls/$number'|") || die "cannot GET";
-    my $resp = <F>;
-    close F;
+      local $/;
+      open(F, "./github-get.sh '/repos/cplusplus/draft/pulls/$number'|") || die "cannot GET";
+      my $resp = <F>;
+      close F;
 
-    my $issue = decode_json($resp);
+      my $issue = decode_json($resp);
 
-    if ($issue->{mergeable_state} eq "dirty") {
+      if ($issue->{mergeable_state} eq "dirty") {
 	open(F, "|./github-post.sh /repos/cplusplus/draft/issues/$number/labels > /dev/null") || die "cannot POST comment";
 	print F "{\n";
 	print F  "\"labels\": [ \"needs rebase\" ]\n";
@@ -40,5 +42,6 @@ for my $i (@{$obj->{items}}) {
 	close F;
 
 	print "added 'needs rebase' label to #", $i->{number}, " ", $i->{title}, "\n";
-    }
+      }
+  }
 }
