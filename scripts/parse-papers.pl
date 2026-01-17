@@ -6,7 +6,7 @@ use Text::CSV qw( csv );
 use HTML::Entities;
 
 my $repo = "cplusplus/papers";
-my $milestone = 19;    # 2025-telecon       # FIXME before every import
+my $milestone = 23;    # 2026-telecon       # FIXME before every import
 
 my $reqpaper = shift;
 
